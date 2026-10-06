@@ -1,0 +1,11 @@
+{
+  "d1": {
+    "binding": "DB",
+    "database_name": "archive-db"
+  },
+  "r2": {
+    "binding": "BUCKET",
+    "bucket_name": "archive-photos"
+  },
+  "project_id": "appgprj_6ac543e9ab6c8191baabe4b6a059d151"
+}
