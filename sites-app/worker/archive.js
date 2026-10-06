@@ -2,7 +2,6 @@ import {loadArchiveSeed} from './seed-loader.js';
 import { database,seedArchive } from './database.js';
 const enc=new TextEncoder();
 const json=(data,status=200,headers={})=>new Response(JSON.stringify(data),{status,headers:{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store','X-Robots-Tag':'noindex, nofollow',...headers}});
-const local=(request,env)=>env.IS_LOCAL_PREVIEW===true&&['terminal.local','localhost','127.0.0.1'].includes(new URL(request.url).hostname);
 const hex=buf=>Array.from(new Uint8Array(buf)).map(x=>x.toString(16).padStart(2,'0')).join('');
 async function hmac(value,secret){const k=await crypto.subtle.importKey('raw',enc.encode(secret),{name:'HMAC',hash:'SHA-256'},false,['sign']);return hex(await crypto.subtle.sign('HMAC',k,enc.encode(value)));}
 const equal=(a,b)=>{if(typeof a!=='string'||typeof b!=='string'||a.length!==b.length)return false;let x=0;for(let i=0;i<a.length;i++)x|=a.charCodeAt(i)^b.charCodeAt(i);return x===0;};
