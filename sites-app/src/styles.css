@@ -6,3 +6,5 @@
 
 .site-footer{width:calc(100% - 92px)}@media(max-width:1100px){.site-footer{width:calc(100% - 56px)}}@media(max-width:760px){.site-footer{width:calc(100% - 44px)}}
 @media(min-width:1101px){.site-header{padding-top:20px;padding-bottom:18px}.site-main{padding-top:0}.hero{padding-top:10px}.hero-text{padding-top:16px}.hero h1{font-size:clamp(4.5rem,8.6vw,8rem)}.hero-intro{font-size:1.25rem}.desktop-break{display:none}.hero-frame img{aspect-ratio:1.78}.hero-picture{padding-bottom:4px}.slide-controls{padding-top:4px}}
+
+.entry-recovery{display:flex;justify-content:center;gap:12px;margin:20px 0;flex-wrap:wrap}
