@@ -13,7 +13,12 @@ async function session(request,env){
   return equal(signature,await hmac(expires+'.'+nonce,env.SESSION_SECRET));
 }
 async function passwordHash(password,salt){const k=await crypto.subtle.importKey('raw',enc.encode(password),'PBKDF2',false,['deriveBits']);return hex(await crypto.subtle.deriveBits({name:'PBKDF2',hash:'SHA-256',salt:enc.encode(salt),iterations:100000},k,256));}
-function cookie(request,value,age){return `archive_session=${value}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${age}${new URL(request.url).protocol==='https:'?'; Secure':''}`;}
+function cookie(request,value,age){
+ // Sites can be opened inside ChatGPT. Partitioned cookies retain the session
+ // in that embedded context without requiring unrestricted third-party cookies.
+ const secure=new URL(request.url).protocol==='https:';
+ return `archive_session=${value}; Path=/; HttpOnly; Max-Age=${age}; ${secure?'SameSite=None; Secure; Partitioned':'SameSite=Strict'}`;
+}
 function today(){const parts=Object.fromEntries(new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date()).map(p=>[p.type,p.value]));return `${parts.year}-${parts.month}-${parts.day}`;}
 function viewRecord(r){const sealed=!!r.open_on&&r.open_on>today();return {...r,body:sealed?'':r.body,sealed};}
 function fields(data,allowed=['photo','memory','reply','future']){

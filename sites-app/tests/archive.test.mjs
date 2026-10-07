@@ -21,7 +21,7 @@ test('password protection, durable records, private photos, capsules and old-bac
   assert.equal((await call('/media/original/PH-002.webp',{cookie:''})).status,401);
   assert.equal((await call('/api/records',{method:'POST',data:{body:'test'},origin:'https://evil.test'})).status,403);
   assert.equal((await call('/api/login',{method:'POST',data:{password:'incorrect'},cookie:''})).status,401);
-  const login=await call('/api/login',{method:'POST',data:{password},cookie:''});assert.equal(login.status,200);sessionCookie=login.headers.get('set-cookie').split(';')[0];assert.match(login.headers.get('set-cookie'),/HttpOnly/);assert.match(login.headers.get('set-cookie'),/Secure/);
+  const login=await call('/api/login',{method:'POST',data:{password},cookie:''});assert.equal(login.status,200);sessionCookie=login.headers.get('set-cookie').split(';')[0];assert.match(login.headers.get('set-cookie'),/HttpOnly/);assert.match(login.headers.get('set-cookie'),/Secure/);assert.match(login.headers.get('set-cookie'),/SameSite=None/);assert.match(login.headers.get('set-cookie'),/Partitioned/);assert.equal((await (await call('/api/session')).json()).authenticated,true);assert.equal((await (await call('/api/session',{cookie:''})).json()).authenticated,false);
   const seed=await (await call('/api/archive')).json();assert.equal(seed.records.filter(r=>r.type==='photo').length,15);assert.equal(seed.records.filter(r=>r.type==='letter').length,1);
   const firstPhoto=await call('/media/original/PH-002.webp');assert.equal(firstPhoto.status,200);assert.equal(firstPhoto.headers.get('cache-control'),'no-store');assert.ok((await firstPhoto.arrayBuffer()).byteLength>1000);
   const create=await call('/api/records',{method:'POST',data:{type:'reply',title:'测试回信',body:'这是独立客户端的测试回信',author:'QA'}});assert.equal(create.status,201);const id=(await create.json()).id;
@@ -39,6 +39,6 @@ test('password protection, durable records, private photos, capsules and old-bac
   const exported=await (await call('/api/export')).json();assert.ok(exported.records);assert.deepEqual(exported.preferences.likes,['PH-002']);assert.equal(exported.records.find(r=>r.title==='封缄').body,'');
   for(let i=0;i<8;i++)await call('/api/login',{method:'POST',data:{password:'wrong'},cookie:'',ip:'blocked-client'});assert.equal((await call('/api/login',{method:'POST',data:{password},cookie:'',ip:'blocked-client'})).status,429);
   assert.equal((await call('/api/archive',{cookie:'archive_session=0.fake.signature'})).status,401);
-  assert.equal((await call('/api/logout',{method:'POST'})).headers.get('set-cookie').includes('Max-Age=0'),true);
+  const logout=await call('/api/logout',{method:'POST'});assert.match(logout.headers.get('set-cookie'),/Max-Age=0/);assert.match(logout.headers.get('set-cookie'),/SameSite=None; Secure; Partitioned/);
  }finally{rmSync(root,{recursive:true,force:true});}
 });
