@@ -38,7 +38,8 @@ test('password protection, durable records, private photos, capsules and old-bac
   assert.equal((await call('/api/records/'+id,{method:'DELETE'})).status,200);assert.ok(!(await (await call('/api/archive')).json()).records.some(r=>r.id===id));assert.equal((await call('/api/records/PH-002',{method:'DELETE'})).status,403);
   const exported=await (await call('/api/export')).json();assert.ok(exported.records);assert.deepEqual(exported.preferences.likes,['PH-002']);assert.equal(exported.records.find(r=>r.title==='封缄').body,'');
   for(let i=0;i<8;i++)await call('/api/login',{method:'POST',data:{password:'wrong'},cookie:'',ip:'blocked-client'});assert.equal((await call('/api/login',{method:'POST',data:{password},cookie:'',ip:'blocked-client'})).status,429);
-  assert.equal((await call('/api/archive',{cookie:'archive_session=0.fake.signature'})).status,401);
+  assert.equal((await call('/api/archive',{cookie:'archive_session_v2=0.fake.signature'})).status,401);
+  assert.equal((await call('/api/session',{cookie:sessionCookie.replace('archive_session_v2=','archive_session=')})).status,200);assert.equal((await (await call('/api/session',{cookie:sessionCookie.replace('archive_session_v2=','archive_session=')})).json()).authenticated,false);
   const logout=await call('/api/logout',{method:'POST'});assert.match(logout.headers.get('set-cookie'),/Max-Age=0/);assert.match(logout.headers.get('set-cookie'),/SameSite=None; Secure; Partitioned/);
  }finally{rmSync(root,{recursive:true,force:true});}
 });
